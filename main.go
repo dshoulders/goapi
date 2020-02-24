@@ -1,24 +1,55 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
-func get(w http.ResponseWriter, r *http.Request) {
+// Message Shape
+type Message struct {
+	Message string `json:"message"`
+}
+
+func respond(w http.ResponseWriter, responseData interface{}, status int) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message": "get called"}`))
+	jsonData, err := json.Marshal(responseData)
+	if err == nil {
+		w.WriteHeader(status)
+		w.Write(jsonData)
+	} else {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(
+			[]byte(
+				fmt.Sprintf(
+					`{"message": "Type: %s cannot be serialised"}`,
+					reflect.TypeOf(responseData),
+				),
+			),
+		)
+	}
+}
+
+func get(w http.ResponseWriter, r *http.Request) {
+	message := Message{
+		Message: "get called",
+	}
+	respond(w, message, http.StatusOK)
 }
 
 func post(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`{"message": "post called"}`))
+	var message Message
+	err := json.NewDecoder(r.Body).Decode(&message)
+	if err != nil {
+		log.Println(err)
+	}
+
+	respond(w, message, http.StatusCreated)
 }
 
 func params(w http.ResponseWriter, r *http.Request) {
