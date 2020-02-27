@@ -8,7 +8,10 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/dshoulders/goapi/services"
+
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 // Message Shape
@@ -33,6 +36,35 @@ func respond(w http.ResponseWriter, responseData interface{}, status int) {
 			),
 		)
 	}
+}
+
+type LoginCredentials struct {
+	Username string
+	Password string
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+	var credentials LoginCredentials
+	var status int
+	var message Message
+
+	_ = json.NewDecoder(r.Body).Decode(&credentials)
+	fmt.Println(credentials.Username, credentials.Password)
+	success, err := services.Authenticate(credentials.Username, credentials.Password)
+
+	if success == false {
+		message = Message{
+			Message: err.Error(),
+		}
+		status = http.StatusUnauthorized
+	} else {
+		message = Message{
+			Message: "Success!",
+		}
+		status = http.StatusOK
+	}
+
+	respond(w, message, status)
 }
 
 func get(w http.ResponseWriter, r *http.Request) {
@@ -89,6 +121,7 @@ func main() {
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("", get).Methods(http.MethodGet)
 	api.HandleFunc("", post).Methods(http.MethodPost)
+	api.HandleFunc("/login", login).Methods(http.MethodPost)
 
 	api.HandleFunc("/user/{userID}/comment/{commentID}", params).Methods(http.MethodGet)
 
