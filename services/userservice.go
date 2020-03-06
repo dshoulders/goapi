@@ -33,7 +33,6 @@ func GetUser(username string) (User, error) {
 			log.Fatal(err)
 			return user, err
 		}
-		log.Println(user.ID, user.Username, user.Hash)
 	}
 
 	err = rows.Err()
