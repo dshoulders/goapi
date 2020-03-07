@@ -8,9 +8,9 @@ import (
 
 // User - User details
 type User struct {
-	ID       int32
-	Username string
-	Hash     string
+	Id       int32  `json:"id"`
+	Username string `json:"username"`
+	Hash     string `json:"-"`
 }
 
 // GetUser - Returns user from db
@@ -28,7 +28,7 @@ func GetUser(username string) (User, error) {
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.Username, &user.Hash)
+		err := rows.Scan(&user.Id, &user.Username, &user.Hash)
 		if err != nil {
 			log.Fatal(err)
 			return user, err
