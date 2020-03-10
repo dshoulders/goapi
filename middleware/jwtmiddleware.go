@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
-	m "github.com/dshoulders/goapi/models"
-	u "github.com/dshoulders/goapi/utils"
+	"github.com/dshoulders/goapi/models"
+	"github.com/dshoulders/goapi/utils"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -34,38 +35,45 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		tokenHeader := r.Header.Get("Authorization") //Grab the token from the header
 
 		if tokenHeader == "" { //Token is missing, returns with error code 403 Unauthorized
-			response := m.Message{"Missing auth token"}
+			response := models.CreateErrorResponse("Missing auth token")
 			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response, http.StatusForbidden)
+			utils.Respond(w, response, http.StatusUnauthorized)
 			return
 		}
 
 		splitted := strings.Split(tokenHeader, " ") //The token normally comes in format `Bearer {token-body}`, we check if the retrieved token matched this requirement
 		if len(splitted) != 2 {
-			response := m.Message{"Invalid/Malformed auth token"}
+			response := models.CreateErrorResponse("Invalid/Malformed auth token")
 			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response, http.StatusForbidden)
+			utils.Respond(w, response, http.StatusUnauthorized)
 			return
 		}
 
 		tokenPart := splitted[1] //Grab the token part, what we are truly interested in
-		tk := &m.Token{}
+		tk := &models.Token{}
 
 		token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("AUTH_TOKEN")), nil
 		})
 
-		if err != nil { //Malformed token, returns with http code 403 as usual
-			response := m.Message{"Malformed authentication token"}
+		if tk.ExpiresAt < time.Now().Unix() { //Token has expired
+			response := models.CreateErrorResponse("Token has expired")
 			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response, http.StatusForbidden)
+			utils.Respond(w, response, http.StatusUnauthorized)
+			return
+		}
+
+		if err != nil { //Malformed token, returns with http code 403 as usual
+			response := models.CreateErrorResponse("Malformed authentication token")
+			w.Header().Add("Content-Type", "application/json")
+			utils.Respond(w, response, http.StatusUnauthorized)
 			return
 		}
 
 		if !token.Valid { //Token is invalid, maybe not signed on this server
-			response := m.Message{"Token is not valid."}
+			response := models.CreateErrorResponse("Token is not valid")
 			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response, http.StatusForbidden)
+			utils.Respond(w, response, http.StatusUnauthorized)
 			return
 		}
 
@@ -73,6 +81,6 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		fmt.Sprintf("User %", tk.Username) //Useful for monitoring
 		ctx := context.WithValue(r.Context(), "user", tk.UserId)
 		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r) //proceed in the middleware chain!
+		next.ServeHTTP(w, r)
 	})
 }

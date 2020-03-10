@@ -8,7 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 
-	m "github.com/dshoulders/goapi/models"
+	"github.com/dshoulders/goapi/models"
 )
 
 type TokenPair struct {
@@ -16,7 +16,7 @@ type TokenPair struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-func GenerateToken(tokenClaims m.Token) (string, error) {
+func GenerateToken(tokenClaims models.Token) (string, error) {
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tokenClaims)
 	return token.SignedString([]byte(os.Getenv("AUTH_TOKEN")))
 }
@@ -45,14 +45,14 @@ func Authenticate(username string, password string) (TokenPair, error) {
 	after30Days := now.Add(time.Hour * 24 * 30)
 
 	//Create access JWT token
-	accessTokenClaims := m.Token{
+	accessTokenClaims := models.Token{
 		UserId: user.Id,
 	}
 	accessTokenClaims.ExpiresAt = after15Minutes.Unix()
 	accessTokenString, _ := GenerateToken(accessTokenClaims)
 
 	//Create refresh JWT token
-	refreshTokenClaims := m.Token{
+	refreshTokenClaims := models.Token{
 		UserId: user.Id,
 	}
 	refreshTokenClaims.ExpiresAt = after30Days.Unix()

@@ -3,20 +3,14 @@ package services
 import (
 	"log"
 
+	"github.com/dshoulders/goapi/models"
 	"github.com/dshoulders/goapi/utils"
 )
 
-// User - User details
-type User struct {
-	Id       int32  `json:"id"`
-	Username string `json:"username"`
-	Hash     string `json:"-"`
-}
-
 // GetUser - Returns user from db
-func GetUser(username string) (User, error) {
+func GetUser(username string) (models.User, error) {
 
-	var user User
+	var user models.User
 
 	dbConn := utils.GetDBConnection()
 	defer dbConn.Close()

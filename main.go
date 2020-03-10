@@ -72,6 +72,8 @@ func main() {
 	api.HandleFunc("", post).Methods(http.MethodPost)
 	api.HandleFunc("/login", controllers.Login).Methods(http.MethodPost)
 
+	api.HandleFunc("/listitem/{itemId}", controllers.ListItem).Methods(http.MethodGet)
+
 	api.HandleFunc("/user/{userId}/comment/{commentId}", params).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(":8000", r))
