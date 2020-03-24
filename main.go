@@ -17,6 +17,7 @@ func main() {
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/login", controllers.Login).Methods(http.MethodPost)
 
+	api.HandleFunc("/{listId}/listitem", controllers.ListItems).Methods(http.MethodGet)
 	api.HandleFunc("/listitem/{itemId}", controllers.ListItem).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(":8000", r))
