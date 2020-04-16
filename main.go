@@ -7,12 +7,18 @@ import (
 	"github.com/dshoulders/goapi/controllers"
 	"github.com/dshoulders/goapi/middleware"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func main() {
 	r := mux.NewRouter()
 	r.Use(middleware.JwtAuthentication) //attach JWT auth middleware
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/login", controllers.Login).Methods(http.MethodPost)
@@ -23,6 +29,7 @@ func main() {
 	api.HandleFunc("/list/{listId}/listitem", controllers.GetListItems).Methods(http.MethodGet)
 	api.HandleFunc("/list/{listId}/listitem", controllers.CreateListItem).Methods(http.MethodPost)
 	api.HandleFunc("/listitem/{itemId}", controllers.GetListItem).Methods(http.MethodGet)
+	api.HandleFunc("/listitem/{itemId}", controllers.UpdateListItem).Methods(http.MethodPut)
 
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

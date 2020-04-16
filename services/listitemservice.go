@@ -101,6 +101,30 @@ func SaveListItem(listId int, listItem models.ListItem) (models.ListItem, error)
 	return listItem, nil
 }
 
+func UpdateListItem(listItem models.ListItem) (models.ListItem, error) {
+
+	query := `
+		UPDATE list_item
+		SET title = $2, notes = $3		
+		WHERE id = $1 AND app_user_id = $4
+		`
+
+	dbConn := utils.GetDBConnection()
+	defer dbConn.Close()
+
+	res, err := dbConn.Exec(query, listItem.Id, listItem.Title, listItem.Notes, listItem.UserId)
+
+	if err != nil {
+		return listItem, err
+	}
+
+	if count, _ := res.RowsAffected(); count == 0 {
+		return listItem, &models.NotFoundError{}
+	}
+
+	return listItem, nil
+}
+
 func GetListItem(listItemId int, userId int32) (models.ListItem, error) {
 
 	var listItem models.ListItem

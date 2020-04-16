@@ -100,3 +100,54 @@ func CreateListItem(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func UpdateListItem(w http.ResponseWriter, r *http.Request) {
+	var listItem models.ListItem
+	listItemId, err := utils.GetRequestParamAsInt("itemId", r)
+
+	userValue := r.Context().Value("user")
+	userId, ok := userValue.(int32)
+
+	if ok == false {
+		response := models.CreateErrorResponse("User Id is not valid")
+		utils.Respond(w, response, http.StatusInternalServerError)
+		return
+	}
+
+	// Try to decode the request body into the struct. If there is an error,
+	// respond to the client with the error message and a 400 status code.
+	err = json.NewDecoder(r.Body).Decode(&listItem)
+	if err != nil {
+		response := models.CreateErrorResponse(err.Error())
+		utils.Respond(w, response, http.StatusBadRequest)
+		return
+	}
+
+	listItem.UserId = userId
+	listItem.Id = listItemId
+
+	listItem, err = services.UpdateListItem(listItem)
+
+	switch err.(type) {
+	case nil:
+		{
+			response := models.CreateSuccessResponse(listItem)
+			utils.Respond(w, response, http.StatusOK)
+			return
+		}
+
+	case *models.NotFoundError:
+		{
+			response := models.CreateErrorResponse("List item was not found")
+			utils.Respond(w, response, http.StatusInternalServerError)
+			return
+		}
+
+	default:
+		{
+			response := models.CreateErrorResponse("Cannot save the list item")
+			utils.Respond(w, response, http.StatusInternalServerError)
+			return
+		}
+	}
+}
