@@ -12,13 +12,13 @@ import (
 )
 
 func main() {
-	r := mux.NewRouter()
-	r.Use(middleware.JwtAuthentication) //attach JWT auth middleware
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	r := mux.NewRouter()
+	r.Use(middleware.JwtAuthentication) //attach JWT auth middleware
 
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/login", controllers.Login).Methods(http.MethodPost)
