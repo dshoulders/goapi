@@ -8,9 +8,11 @@ import (
 )
 
 func getListOwner(listId int) (int, error) {
-	query := "SELECT app_user_id" +
-		" FROM list" +
-		" WHERE id = $1"
+	query := `
+		SELECT app_user_id
+		FROM list
+		WHERE id = $1
+	`
 
 	var ownerId int
 
@@ -41,11 +43,13 @@ func GetListItems(listId int, userId int32) ([]models.ListItem, error) {
 		return listItems, &models.AuthenticationError{}
 	}
 
-	query := "SELECT li.title, li.id, li.notes, au.id" +
-		" FROM list_item li" +
-		" INNER JOIN app_user au" +
-		"    on li.app_user_id = au.id" +
-		" WHERE list_id = $1"
+	query := `
+		SELECT li.title, li.id, li.notes, au.id
+		FROM list_item li
+		INNER JOIN app_user au
+		   on li.app_user_id = au.id
+		WHERE list_id = $1
+	`
 
 	dbConn := utils.GetDBConnection()
 	defer dbConn.Close()
@@ -129,9 +133,11 @@ func GetListItem(listItemId int, userId int32) (models.ListItem, error) {
 
 	var listItem models.ListItem
 
-	query := "SELECT title, id, notes, app_user_id" +
-		" FROM list_item" +
-		" WHERE id = $1"
+	query := `
+		SELECT title, id, notes, app_user_id
+		FROM list_item
+		WHERE id = $1
+	`
 
 	dbConn := utils.GetDBConnection()
 	defer dbConn.Close()

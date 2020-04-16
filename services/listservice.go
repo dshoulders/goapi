@@ -10,9 +10,11 @@ import (
 func GetList(listId int, userId int32) (models.List, error) {
 	var list models.List
 
-	query := "SELECT id, title, app_user_id " +
-		"FROM list " +
-		"WHERE id = $1"
+	query := `
+		SELECT id, title, app_user_id
+		FROM list
+		WHERE id = $1
+	`
 
 	dbConn := utils.GetDBConnection()
 	defer dbConn.Close()
@@ -35,9 +37,11 @@ func GetList(listId int, userId int32) (models.List, error) {
 func GetLists(userId int32) ([]models.List, error) {
 	var lists []models.List
 
-	query := "SELECT id, title, app_user_id " +
-		"FROM list " +
-		"WHERE app_user_id = $1"
+	query := `
+		SELECT id, title, app_user_id
+		FROM list
+		WHERE app_user_id = $1
+	`
 
 	dbConn := utils.GetDBConnection()
 	defer dbConn.Close()
@@ -65,9 +69,11 @@ func SaveList(title string, userId int32) (models.List, error) {
 
 	var list models.List
 
-	query := "INSERT into list (title, app_user_id) " +
-		"VALUES ($1, $2) " +
-		"RETURNING title, id, app_user_id"
+	query := `
+		INSERT into list (title, app_user_id)
+		VALUES ($1, $2)
+		RETURNING title, id, app_user_id
+	`
 
 	dbConn := utils.GetDBConnection()
 	defer dbConn.Close()
