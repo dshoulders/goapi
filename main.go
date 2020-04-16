@@ -20,8 +20,9 @@ func main() {
 	api.HandleFunc("/list", controllers.GetLists).Methods(http.MethodGet)
 	api.HandleFunc("/list", controllers.CreateList).Methods(http.MethodPost)
 	api.HandleFunc("/list/{listId}", controllers.GetList).Methods(http.MethodGet)
-	api.HandleFunc("/list/{listId}/listitem", controllers.ListItems).Methods(http.MethodGet)
-	api.HandleFunc("/listitem/{itemId}", controllers.ListItem).Methods(http.MethodGet)
+	api.HandleFunc("/list/{listId}/listitem", controllers.GetListItems).Methods(http.MethodGet)
+	api.HandleFunc("/list/{listId}/listitem", controllers.CreateListItem).Methods(http.MethodPost)
+	api.HandleFunc("/listitem/{itemId}", controllers.GetListItem).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

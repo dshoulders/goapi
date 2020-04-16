@@ -75,6 +75,32 @@ func GetListItems(listId int, userId int32) ([]models.ListItem, error) {
 	return listItems, nil
 }
 
+func SaveListItem(listId int, listItem models.ListItem) (models.ListItem, error) {
+
+	query := `
+		INSERT into list_item (title, notes, list_id, app_user_id)
+		SELECT $1, $2, $3, $4
+		WHERE EXISTS (
+			SELECT * FROM list 
+			WHERE id = $3 AND app_user_id = $4
+		)
+		RETURNING id
+		`
+
+	dbConn := utils.GetDBConnection()
+	defer dbConn.Close()
+
+	row := dbConn.QueryRow(query, listItem.Title, listItem.Notes, listId, listItem.UserId)
+
+	err := row.Scan(&listItem.Id)
+
+	if err != nil {
+		return listItem, err
+	}
+
+	return listItem, nil
+}
+
 func GetListItem(listItemId int, userId int32) (models.ListItem, error) {
 
 	var listItem models.ListItem

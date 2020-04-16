@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/dshoulders/goapi/models"
@@ -8,7 +9,7 @@ import (
 	"github.com/dshoulders/goapi/utils"
 )
 
-func ListItem(w http.ResponseWriter, r *http.Request) {
+func GetListItem(w http.ResponseWriter, r *http.Request) {
 	itemId, err := utils.GetRequestParamAsInt("itemId", r)
 	userValue := r.Context().Value("user")
 	userId, ok := userValue.(int32)
@@ -51,6 +52,49 @@ func ListItem(w http.ResponseWriter, r *http.Request) {
 	default:
 		{
 			response := models.CreateErrorResponse(err.Error())
+			utils.Respond(w, response, http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func CreateListItem(w http.ResponseWriter, r *http.Request) {
+	var listItem models.ListItem
+	listId, err := utils.GetRequestParamAsInt("listId", r)
+
+	userValue := r.Context().Value("user")
+	userId, ok := userValue.(int32)
+
+	if ok == false {
+		response := models.CreateErrorResponse("User Id is not valid")
+		utils.Respond(w, response, http.StatusInternalServerError)
+		return
+	}
+
+	// Try to decode the request body into the struct. If there is an error,
+	// respond to the client with the error message and a 400 status code.
+	err = json.NewDecoder(r.Body).Decode(&listItem)
+	if err != nil {
+		response := models.CreateErrorResponse(err.Error())
+		utils.Respond(w, response, http.StatusBadRequest)
+		return
+	}
+
+	listItem.UserId = userId
+
+	listItem, err = services.SaveListItem(listId, listItem)
+
+	switch err.(type) {
+	case nil:
+		{
+			response := models.CreateSuccessResponse(listItem)
+			utils.Respond(w, response, http.StatusOK)
+			return
+		}
+
+	default:
+		{
+			response := models.CreateErrorResponse("Cannot save the list item")
 			utils.Respond(w, response, http.StatusInternalServerError)
 			return
 		}

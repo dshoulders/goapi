@@ -129,7 +129,7 @@ func CreateList(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ListItems(w http.ResponseWriter, r *http.Request) {
+func GetListItems(w http.ResponseWriter, r *http.Request) {
 	listId, err := utils.GetRequestParamAsInt("listId", r)
 	userValue := r.Context().Value("user")
 	userId, ok := userValue.(int32)
