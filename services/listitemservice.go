@@ -129,6 +129,29 @@ func UpdateListItem(listItem models.ListItem) (models.ListItem, error) {
 	return listItem, nil
 }
 
+func DeleteListItem(userId int32, listItemId int) (bool, error) {
+
+	query := `
+		DELETE from list_item	
+		WHERE id = $1 AND app_user_id = $2
+		`
+
+	dbConn := utils.GetDBConnection()
+	defer dbConn.Close()
+
+	res, err := dbConn.Exec(query, listItemId, userId)
+
+	if err != nil {
+		return false, err
+	}
+
+	if count, _ := res.RowsAffected(); count == 0 {
+		return false, &models.NotFoundError{}
+	}
+
+	return true, nil
+}
+
 func GetListItem(listItemId int, userId int32) (models.ListItem, error) {
 
 	var listItem models.ListItem

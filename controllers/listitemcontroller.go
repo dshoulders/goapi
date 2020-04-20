@@ -151,3 +151,42 @@ func UpdateListItem(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func DeleteListItem(w http.ResponseWriter, r *http.Request) {
+
+	listItemId, err := utils.GetRequestParamAsInt("itemId", r)
+
+	userValue := r.Context().Value("user")
+	userId, ok := userValue.(int32)
+
+	if ok == false {
+		response := models.CreateErrorResponse("User Id is not valid")
+		utils.Respond(w, response, http.StatusInternalServerError)
+		return
+	}
+
+	ok, err = services.DeleteListItem(userId, listItemId)
+
+	switch err.(type) {
+	case nil:
+		{
+			response := models.CreateSuccessResponse(&models.Message{"List item was successfully deleted"})
+			utils.Respond(w, response, http.StatusOK)
+			return
+		}
+
+	case *models.NotFoundError:
+		{
+			response := models.CreateErrorResponse("List item was not found")
+			utils.Respond(w, response, http.StatusInternalServerError)
+			return
+		}
+
+	default:
+		{
+			response := models.CreateErrorResponse("Cannot delete the list item")
+			utils.Respond(w, response, http.StatusInternalServerError)
+			return
+		}
+	}
+}

@@ -18,7 +18,7 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.Use(middleware.JwtAuthentication) //attach JWT auth middleware
+	r.Use(middleware.JwtAuthentication) // attach JWT auth middleware
 
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/login", controllers.Login).Methods(http.MethodPost)
@@ -30,6 +30,7 @@ func main() {
 	api.HandleFunc("/list/{listId}/listitem", controllers.CreateListItem).Methods(http.MethodPost)
 	api.HandleFunc("/listitem/{itemId}", controllers.GetListItem).Methods(http.MethodGet)
 	api.HandleFunc("/listitem/{itemId}", controllers.UpdateListItem).Methods(http.MethodPut)
+	api.HandleFunc("/listitem/{itemId}", controllers.DeleteListItem).Methods(http.MethodDelete)
 
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
