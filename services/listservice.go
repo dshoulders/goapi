@@ -88,3 +88,26 @@ func SaveList(title string, userId int32) (models.List, error) {
 
 	return list, nil
 }
+
+func DeleteList(userId int32, listId int) (bool, error) {
+
+	query := `
+		DELETE from list
+		WHERE id = $1 AND app_user_id = $2
+		`
+
+	dbConn := utils.GetDBConnection()
+	defer dbConn.Close()
+
+	res, err := dbConn.Exec(query, listId, userId)
+
+	if err != nil {
+		return false, err
+	}
+
+	if count, _ := res.RowsAffected(); count == 0 {
+		return false, &models.NotFoundError{}
+	}
+
+	return true, nil
+}
