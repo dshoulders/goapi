@@ -17,13 +17,13 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		response := models.CreateErrorResponse("List Id is required")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
 	if ok == false {
 		response := models.CreateErrorResponse("User Id is not valid")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
@@ -97,7 +97,7 @@ func CreateList(w http.ResponseWriter, r *http.Request) {
 
 	if ok == false {
 		response := models.CreateErrorResponse("User Id is not valid")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
@@ -136,13 +136,13 @@ func GetListItems(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		response := models.CreateErrorResponse("List Id is required")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
 	if ok == false {
 		response := models.CreateErrorResponse("User Id is not valid")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
@@ -167,6 +167,49 @@ func GetListItems(w http.ResponseWriter, r *http.Request) {
 		{
 			response := models.CreateErrorResponse("Not authorised to access list. List Id: " + strconv.Itoa(listId))
 			utils.Respond(w, response, http.StatusUnauthorized)
+			return
+		}
+
+	default:
+		{
+			response := models.CreateErrorResponse(err.Error())
+			utils.Respond(w, response, http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func DeleteList(w http.ResponseWriter, r *http.Request) {
+	listId, err := utils.GetRequestParamAsInt("listId", r)
+	userValue := r.Context().Value("user")
+	userId, ok := userValue.(int32)
+
+	if err != nil {
+		response := models.CreateErrorResponse("List Id is required")
+		utils.Respond(w, response, http.StatusBadRequest)
+		return
+	}
+
+	if ok == false {
+		response := models.CreateErrorResponse("User Id is not valid")
+		utils.Respond(w, response, http.StatusBadRequest)
+		return
+	}
+
+	ok, err = services.DeleteList(userId, listId)
+
+	switch err.(type) {
+	case nil:
+		{
+			response := models.CreateSuccessResponse(&models.Message{"List was successfully deleted"})
+			utils.Respond(w, response, http.StatusOK)
+			return
+		}
+
+	case *models.NotFoundError:
+		{
+			response := models.CreateErrorResponse("List not found. List Id: " + strconv.Itoa(listId))
+			utils.Respond(w, response, http.StatusNotFound)
 			return
 		}
 

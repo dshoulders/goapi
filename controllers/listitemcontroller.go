@@ -16,13 +16,13 @@ func GetListItem(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		response := models.CreateErrorResponse("List item Id is required")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
 	if ok == false {
 		response := models.CreateErrorResponse("User Id is not valid")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
@@ -67,7 +67,7 @@ func CreateListItem(w http.ResponseWriter, r *http.Request) {
 
 	if ok == false {
 		response := models.CreateErrorResponse("User Id is not valid")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
@@ -110,7 +110,7 @@ func UpdateListItem(w http.ResponseWriter, r *http.Request) {
 
 	if ok == false {
 		response := models.CreateErrorResponse("User Id is not valid")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
@@ -159,9 +159,15 @@ func DeleteListItem(w http.ResponseWriter, r *http.Request) {
 	userValue := r.Context().Value("user")
 	userId, ok := userValue.(int32)
 
+	if err != nil {
+		response := models.CreateErrorResponse("List item Id is required")
+		utils.Respond(w, response, http.StatusBadRequest)
+		return
+	}
+
 	if ok == false {
 		response := models.CreateErrorResponse("User Id is not valid")
-		utils.Respond(w, response, http.StatusInternalServerError)
+		utils.Respond(w, response, http.StatusBadRequest)
 		return
 	}
 
