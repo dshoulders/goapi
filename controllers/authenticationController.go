@@ -21,6 +21,7 @@ type LoginResponse struct {
 
 // Login - Handles login requests and returns a JWT if succesful
 func Login(w http.ResponseWriter, r *http.Request) {
+
 	var credentials LoginCredentials
 	var status int
 	var tokenPair services.TokenPair

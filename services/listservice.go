@@ -11,9 +11,9 @@ func GetList(listId int, userId int32) (models.List, error) {
 	var list models.List
 
 	query := `
-		SELECT id, title, app_user_id
+		SELECT list_id, title, app_user_id
 		FROM list
-		WHERE id = $1
+		WHERE list_id = $1
 	`
 
 	dbConn := utils.GetDBConnection()
@@ -38,7 +38,7 @@ func GetLists(userId int32) ([]models.List, error) {
 	var lists []models.List
 
 	query := `
-		SELECT id, title, app_user_id
+		SELECT list_id, title, app_user_id
 		FROM list
 		WHERE app_user_id = $1
 	`
@@ -72,7 +72,7 @@ func SaveList(title string, userId int32) (models.List, error) {
 	query := `
 		INSERT into list (title, app_user_id)
 		VALUES ($1, $2)
-		RETURNING title, id, app_user_id
+		RETURNING title, list_id, app_user_id
 	`
 
 	dbConn := utils.GetDBConnection()
@@ -93,7 +93,7 @@ func DeleteList(userId int32, listId int) (bool, error) {
 
 	query := `
 		DELETE from list
-		WHERE id = $1 AND app_user_id = $2
+		WHERE list_id = $1 AND app_user_id = $2
 		`
 
 	dbConn := utils.GetDBConnection()

@@ -9,17 +9,12 @@ import (
 // GetDBConnection - Opens a connection to the db and returns the a pointer to the db object
 func GetDBConnection() *sql.DB {
 
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
-
 	var (
 		host     = "localhost"
-		port     = 5432
-		user     = os.Getenv("DB_USER")
-		password = os.Getenv("DB_PASSWORD")
-		dbname   = os.Getenv("DB_NAME")
+		port     = 6543
+		user     = os.Getenv("POSTGRES_USER")
+		password = os.Getenv("POSTGRES_PASSWORD")
+		dbname   = os.Getenv("POSTGRES_DB")
 	)
 
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+

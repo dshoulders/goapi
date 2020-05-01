@@ -11,7 +11,7 @@ func getListOwner(listId int) (int, error) {
 	query := `
 		SELECT app_user_id
 		FROM list
-		WHERE id = $1
+		WHERE list_id = $1
 	`
 
 	var ownerId int
@@ -44,10 +44,10 @@ func GetListItems(listId int, userId int32) ([]models.ListItem, error) {
 	}
 
 	query := `
-		SELECT li.title, li.id, li.notes, au.id
+		SELECT li.title, li.item_id, li.notes, au.id
 		FROM list_item li
 		INNER JOIN app_user au
-		   on li.app_user_id = au.id
+		   on li.app_user_id = au.app_user_id
 		WHERE list_id = $1
 	`
 
@@ -86,9 +86,9 @@ func SaveListItem(listId int, listItem models.ListItem) (models.ListItem, error)
 		SELECT $1, $2, $3, $4
 		WHERE EXISTS (
 			SELECT * FROM list 
-			WHERE id = $3 AND app_user_id = $4
+			WHERE list_id = $3 AND app_user_id = $4
 		)
-		RETURNING id
+		RETURNING item_id
 		`
 
 	dbConn := utils.GetDBConnection()
@@ -110,7 +110,7 @@ func UpdateListItem(listItem models.ListItem) (models.ListItem, error) {
 	query := `
 		UPDATE list_item
 		SET title = $2, notes = $3		
-		WHERE id = $1 AND app_user_id = $4
+		WHERE item_id = $1 AND app_user_id = $4
 		`
 
 	dbConn := utils.GetDBConnection()
@@ -133,7 +133,7 @@ func DeleteListItem(userId int32, listItemId int) (bool, error) {
 
 	query := `
 		DELETE from list_item	
-		WHERE id = $1 AND app_user_id = $2
+		WHERE item_id = $1 AND app_user_id = $2
 		`
 
 	dbConn := utils.GetDBConnection()
@@ -157,9 +157,9 @@ func GetListItem(listItemId int, userId int32) (models.ListItem, error) {
 	var listItem models.ListItem
 
 	query := `
-		SELECT title, id, notes, app_user_id
+		SELECT title, item_id, notes, app_user_id
 		FROM list_item
-		WHERE id = $1
+		WHERE item_id = $1
 	`
 
 	dbConn := utils.GetDBConnection()
